@@ -16,6 +16,84 @@ const INITIAL_CLUES: Clue[] = [
 	},
 ];
 
+const ALL_CLUES: Clue[] = [
+	{
+		id: "sunglasses",
+		name: "Gold-rimmed sunglasses",
+		description: "Distinctive TCB inscription",
+	},
+	{
+		id: "sign",
+		name: "Suspicious signage",
+		description: "Hastily made with hidden text",
+	},
+	{
+		id: "radio",
+		name: "Vintage radio evidence",
+		description: "Picks up underground signals",
+	},
+	{
+		id: "tree",
+		name: "Carved initials",
+		description: "E.P. + P.P. in a heart",
+	},
+	{
+		id: "bush",
+		name: "Hidden jumpsuit",
+		description: "White with rhinestones",
+	},
+	{
+		id: "speaker",
+		name: "Hidden speaker system",
+		description: "Playing Elvis hits on repeat",
+	},
+];
+
+const DIALOGS: DialogContent[] = [
+	{
+		itemId: "sunglasses",
+		title: "🕶️ Suspicious Eyewear",
+		content: `These aren't just any sunglasses... they're gold-rimmed, with a very distinctive style.
+The lenses are tinted blue, and there's a small "TCB" inscription on the temple.
+Someone clearly dropped these in a hurry. They're still warm!`,
+	},
+	{
+		itemId: "sign",
+		title: "📋 Hastily Made Sign",
+		content: `This sign was clearly made in a hurry. The wood is fresh and the paint is still slightly wet.
+It reads "DEFINITELY JUST A NORMAL HOLE" in handwriting that looks suspiciously like it was trying to disguise itself.
+Upon closer inspection, you can see that it originally said something else underneath...`,
+	},
+	{
+		itemId: "radio",
+		title: "📻 Mysterious Radio",
+		content: `You tune the radio and suddenly hear a familiar voice crooning "Love Me Tender" coming from... underground?
+The signal seems to be strongest when you point the antenna toward the hole.
+Wait... is that a live performance?`,
+	},
+	{
+		itemId: "tree",
+		title: "🌳 Ancient Oak Tree",
+		content: `You examine the old oak tree and notice fresh carvings in the bark.
+"E.P. + P.P." is carved inside a heart, along with "TCB 4EVR".
+The bark around the carving is still oozing sap - this was done recently!`,
+	},
+	{
+		itemId: "bush",
+		title: "🌿 Suspicious Shrubbery",
+		content: `You push aside the leaves and discover a white jumpsuit covered in rhinestones!
+It's been hastily stuffed into the bush, but it's clearly expensive and well-maintained.
+There's a name tag that reads "Property of The King".`,
+	},
+	{
+		itemId: "speaker",
+		title: "🪨 Ordinary Rock",
+		content: `It's just a rock. But wait... it's warm to the touch and seems to be vibrating slightly.
+You lift it up and discover a hidden speaker underneath playing "Hound Dog" at very low volume!
+Someone's been using this as a decoy!`,
+	},
+];
+
 export default function ElvisAdventure() {
 	const [discoveredClues, setDiscoveredClues] = useState<Clue[]>([]);
 	const [dialogContent, setDialogContent] = useState<DialogContent | null>(
@@ -43,7 +121,7 @@ export default function ElvisAdventure() {
 		return () => window.removeEventListener("resize", handleResize);
 	}, []);
 
-	const addClue = useCallback((clue: Clue) => {
+	const addClue = (clue: Clue) => {
 		setDiscoveredClues((prev) => {
 			if (!prev.find((c) => c.id === clue.id)) {
 				setSuspicionLevel((s) => s + 1);
@@ -51,15 +129,41 @@ export default function ElvisAdventure() {
 			}
 			return prev;
 		});
-	}, []);
+	};
 
-	const showDialog = useCallback((content: DialogContent) => {
+	const showDialog = (content: DialogContent) => {
 		setDialogContent(content);
-	}, []);
+	};
 
-	const closeDialog = useCallback(() => {
+	const closeDialog = () => {
 		setDialogContent(null);
-	}, []);
+	};
+
+	function examine(id: string) {
+		if (id == "hole") {
+			examineHole();
+			return;
+		}
+		if (foundItems.includes(id)) return;
+		setFoundItems((prev) => [...prev, id]);
+
+		for (const dialog of DIALOGS) {
+			if (dialog.itemId === id) {
+				if (id === "radio") {
+					if (!musicPlaying) {
+						setMusicPlaying(true);
+					}
+				}
+				showDialog(dialog);
+			}
+		}
+
+		for (const clue of ALL_CLUES) {
+			if (clue.id === id) {
+				addClue(clue);
+			}
+		}
+	}
 
 	function examineHole() {
 		const evidenceClues = discoveredClues.filter(
@@ -68,6 +172,7 @@ export default function ElvisAdventure() {
 
 		if (evidenceClues.length < 5) {
 			showDialog({
+				itemId: "hole",
 				title: "🔍 The Mysterious Hole",
 				content: `You peer into the dark depths. It's surprisingly deep and... is that carpeting down there?
 The hole seems to go way deeper than a normal hole should. You hear a faint echo that sounds suspiciously like... no, it couldn't be. You need more evidence before investigating further.
@@ -76,6 +181,7 @@ Evidence needed: ${evidenceClues.length}/5`,
 			});
 		} else {
 			showDialog({
+				itemId: "hole",
 				title: "🕳️ Into the Rabbit Hole",
 				content: `With all the evidence you've gathered, you decide to investigate further.
 You shine your flashlight down and see... a ladder? And is that a neon sign that says "Graceland II"?
@@ -84,119 +190,6 @@ A voice from below calls out: "Thank ya, thank ya very much for finding me. I wa
 				isVictory: true,
 			});
 		}
-	}
-
-	function examineSunglasses() {
-		if (foundItems.includes("sunglasses")) return;
-		setFoundItems((prev) => [...prev, "sunglasses"]);
-
-		addClue({
-			id: "sunglasses",
-			name: "Gold-rimmed sunglasses",
-			description: "Distinctive TCB inscription",
-		});
-
-		showDialog({
-			title: "🕶️ Suspicious Eyewear",
-			content: `These aren't just any sunglasses... they're gold-rimmed, with a very distinctive style.
-The lenses are tinted blue, and there's a small "TCB" inscription on the temple.
-Someone clearly dropped these in a hurry. They're still warm!`,
-		});
-	}
-
-	function examineSign() {
-		if (foundItems.includes("sign")) return;
-		setFoundItems((prev) => [...prev, "sign"]);
-
-		addClue({
-			id: "sign",
-			name: "Suspicious signage",
-			description: "Hastily made with hidden text",
-		});
-
-		showDialog({
-			title: "📋 Hastily Made Sign",
-			content: `This sign was clearly made in a hurry. The wood is fresh and the paint is still slightly wet.
-It reads "DEFINITELY JUST A NORMAL HOLE" in handwriting that looks suspiciously like it was trying to disguise itself.
-Upon closer inspection, you can see that it originally said something else underneath...`,
-		});
-	}
-
-	function examineRadio() {
-		if (foundItems.includes("radio")) return;
-		setFoundItems((prev) => [...prev, "radio"]);
-
-		addClue({
-			id: "radio",
-			name: "Vintage radio evidence",
-			description: "Picks up underground signals",
-		});
-
-		if (!musicPlaying) {
-			setMusicPlaying(true);
-			showDialog({
-				title: "📻 Mysterious Radio",
-				content: `You tune the radio and suddenly hear a familiar voice crooning "Love Me Tender" coming from... underground?
-The signal seems to be strongest when you point the antenna toward the hole.
-Wait... is that a live performance?`,
-			});
-		}
-	}
-
-	function examineTree() {
-		if (foundItems.includes("tree")) return;
-		setFoundItems((prev) => [...prev, "tree"]);
-
-		addClue({
-			id: "tree",
-			name: "Carved initials",
-			description: "E.P. + P.P. in a heart",
-		});
-
-		showDialog({
-			title: "🌳 Ancient Oak Tree",
-			content: `You examine the old oak tree and notice fresh carvings in the bark.
-"E.P. + P.P." is carved inside a heart, along with "TCB 4EVR".
-The bark around the carving is still oozing sap - this was done recently!`,
-		});
-	}
-
-	function examineBush() {
-		if (foundItems.includes("bush")) return;
-		setFoundItems((prev) => [...prev, "bush"]);
-
-		addClue({
-			id: "bush",
-			name: "Hidden jumpsuit",
-			description: "White with rhinestones",
-		});
-
-		showDialog({
-			title: "🌿 Suspicious Shrubbery",
-			content: `You push aside the leaves and discover a white jumpsuit covered in rhinestones!
-It's been hastily stuffed into the bush, but it's clearly expensive and well-maintained.
-There's a name tag that reads "Property of The King".`,
-		});
-	}
-
-	function examineRock() {
-		if (foundItems.includes("rock")) return;
-		setFoundItems((prev) => [...prev, "rock"]);
-
-		showDialog({
-			title: "🪨 Ordinary Rock",
-			content: `It's just a rock. But wait... it's warm to the touch and seems to be vibrating slightly.
-You lift it up and discover a hidden speaker underneath playing "Hound Dog" at very low volume!
-Someone's been using this as a decoy!`,
-		});
-
-		setTimeout(() => {
-			addClue({
-				id: "speaker",
-				name: "Hidden speaker system",
-				description: "Playing Elvis hits on repeat",
-			});
-		}, 1000);
 	}
 
 	function handleSceneClick(e: React.MouseEvent) {
@@ -237,7 +230,7 @@ Someone's been using this as a decoy!`,
 
 	return (
 		<div className="relative w-screen h-screen bg-gradient-to-b from-sky-400 via-sky-200 to-green-300 cursor-crosshair overflow-hidden">
-			<div className="absolute top-5 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-85 text-yellow-400 px-8 py-4 rounded-lg text-center z-50 border-2 border-yellow-400 shadow-lg max-w-4xl">
+			<div className="absolute top-5 left-1/2 transform -translate-x-1/2 bg-black/85 text-yellow-400 px-8 py-4 rounded-lg text-center z-50 border-2 border-yellow-400 shadow-lg max-w-4xl">
 				<h1 className="text-2xl font-bold">
 					A Hole in the Ground Where Elvis Presley is Definitely Not
 					Hiding
@@ -247,7 +240,7 @@ Someone's been using this as a decoy!`,
 				</p>
 			</div>
 
-			<div className="absolute top-5 left-5 bg-black bg-opacity-85 text-white px-4 py-3 rounded-lg border-2 border-red-500 z-50">
+			<div className="absolute top-5 left-5 bg-black/85 text-white px-4 py-3 rounded-lg border-2 border-red-500 z-50">
 				<div className="text-sm font-bold text-red-400">
 					SUSPICION LEVEL
 				</div>
@@ -309,7 +302,7 @@ Someone's been using this as a decoy!`,
 				whileHover={{ scale: 1.1 }}
 				onClick={(e) => {
 					e.stopPropagation();
-					examineTree();
+					examine("tree");
 				}}
 				title="An old oak tree with fresh carvings..."
 			>
@@ -333,7 +326,7 @@ Someone's been using this as a decoy!`,
 				whileHover={{ scale: 1.1 }}
 				onClick={(e) => {
 					e.stopPropagation();
-					examineBush();
+					examine("bush");
 				}}
 				title="A suspiciously well-groomed bush..."
 			>
@@ -353,13 +346,13 @@ Someone's been using this as a decoy!`,
 				whileHover={{ scale: 1.1 }}
 				onClick={(e) => {
 					e.stopPropagation();
-					examineRock();
+					examine("speaker");
 				}}
 				title="Just an ordinary rock... or is it?"
 			>
 				<div className="absolute top-1 left-1 w-10 h-6 bg-gray-400 rounded-full"></div>
 				<div className="absolute top-2 left-2 w-8 h-4 bg-gray-300 rounded-full"></div>
-				{!foundItems.includes("rock") && musicPlaying && (
+				{!foundItems.includes("speaker") && musicPlaying && (
 					<motion.div
 						className="absolute -top-1 -left-1 w-2 h-2 bg-green-400 rounded-full"
 						animate={{ opacity: [0, 1, 0] }}
@@ -402,7 +395,7 @@ Someone's been using this as a decoy!`,
 						whileHover={{ scale: 1.2 }}
 						onClick={(e) => {
 							e.stopPropagation();
-							examineSunglasses();
+							examine("sunglasses");
 						}}
 						title="Gold-rimmed sunglasses... hmm"
 						animate={{
@@ -425,7 +418,7 @@ Someone's been using this as a decoy!`,
 						whileHover={{ scale: 1.1, rotate: 2 }}
 						onClick={(e) => {
 							e.stopPropagation();
-							examineSign();
+							examine("sign");
 						}}
 						title="A hastily made sign"
 						animate={{
@@ -453,7 +446,7 @@ Someone's been using this as a decoy!`,
 						whileHover={{ scale: 1.2 }}
 						onClick={(e) => {
 							e.stopPropagation();
-							examineRadio();
+							examine("radio");
 						}}
 						title="An old transistor radio"
 						animate={{
@@ -559,7 +552,7 @@ Someone's been using this as a decoy!`,
 				</AnimatePresence>
 			</div>
 
-			<div className="fixed top-24 right-5 bg-black bg-opacity-90 p-4 rounded-lg min-w-[280px] border-2 border-yellow-400 shadow-lg max-h-[60vh] overflow-y-auto">
+			<div className="fixed top-24 right-5 bg-black/90 p-4 rounded-lg min-w-[280px] border-2 border-yellow-400 shadow-lg max-h-[60vh] overflow-y-auto">
 				<h3 className="text-yellow-400 mb-3 font-bold text-lg">
 					Investigation Notes
 				</h3>
@@ -567,7 +560,7 @@ Someone's been using this as a decoy!`,
 					{discoveredClues.map((clue) => (
 						<div
 							key={clue.id}
-							className="text-white text-sm p-2 bg-white bg-opacity-10 rounded border border-gray-600 hover:bg-opacity-20 transition-colors"
+							className="text-white text-sm p-2 bg-white/10 rounded border border-gray-600 hover:bg-white/20 transition-colors"
 							title={clue.description}
 						>
 							✓ {clue.name}
@@ -591,7 +584,7 @@ Someone's been using this as a decoy!`,
 			<AnimatePresence>
 				{dialogContent && (
 					<motion.div
-						className="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-95 text-white p-6 rounded-lg max-w-3xl min-h-[120px] z-50 border-2 border-yellow-400 shadow-2xl"
+						className="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-black/95 text-white p-6 rounded-lg max-w-3xl min-h-[120px] z-50 border-2 border-yellow-400 shadow-2xl"
 						initial={{ y: 100, opacity: 0 }}
 						animate={{ y: 0, opacity: 1 }}
 						exit={{ y: 100, opacity: 0 }}

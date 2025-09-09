@@ -5,6 +5,7 @@ export interface Clue {
 }
 
 export interface DialogContent {
+	itemId: string;
 	title: string;
 	content: string;
 	isVictory?: boolean;
