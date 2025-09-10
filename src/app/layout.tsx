@@ -13,9 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Summer Of Making - Scene 35",
-	description:
-		"A Hole in the Ground where Elvis Presley is Definitely Not Hiding",
+	title: "A Hole in the Ground where Elvis Presley is Definitely Not Hiding",
+	description: "Scene 35 - I mean, he's not dead... right?",
 };
 
 export default function RootLayout({
