@@ -603,12 +603,20 @@ A voice from below calls out: "Thank ya, thank ya very much for finding me. I wa
 							{dialogContent.content}
 						</p>
 						{dialogContent.isVictory && (
-							<button
-								className="mt-4 px-6 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-300 transition-colors font-bold"
-								onClick={restartScene}
-							>
-								Start New Investigation
-							</button>
+							<div className="flex flex-row gap-x-4 items-center justify-between">
+								<button
+									className="mt-4 px-6 py-2 bg-yellow-400 text-black rounded hover:bg-yellow-300 transition-colors font-bold"
+									onClick={restartScene}
+								>
+									Start New Investigation
+								</button>
+								<a
+									href="/scenes/47/"
+									className="text-yellow-400 hover:underline mt-auto"
+								>
+									Continue to: Wetwater Lake
+								</a>
+							</div>
 						)}
 					</motion.div>
 				)}
